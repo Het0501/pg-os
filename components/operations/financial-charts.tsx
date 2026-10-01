@@ -1,0 +1,13 @@
+'use client'
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { usePrototype } from '@/lib/prototype-store'
+import { financials } from '@/lib/financials'
+import { properties } from '@/lib/properties'
+export function FinancialCharts() {
+  const state = usePrototype()
+  const timeline = ['2026-08', '2026-09'].map(month => { const f = financials(state, 'all', month); return { month: month === '2026-08' ? 'August' : 'September', revenue: f.collected, expenses: f.spent } })
+  const performance = properties.map(p => { const f = financials(state, p.id); return { property: p.name, occupancy: Number(f.occupancy.toFixed(1)), collection: Number(f.rate.toFixed(1)) } })
+  return <section aria-label="Business charts" className="grid min-w-0 gap-4 xl:grid-cols-2"><Card><CardHeader><CardTitle>Revenue & expenses over time</CardTitle><CardDescription>Recorded cash flows · INR · August data is partial</CardDescription></CardHeader><CardContent><ChartContainer className="h-56 w-full" config={{ revenue: { label: 'Revenue', color: 'var(--chart-1)' }, expenses: { label: 'Expenses', color: 'var(--chart-2)' } }}><BarChart accessibilityLayer data={timeline}><CartesianGrid vertical={false} /><XAxis dataKey="month" tickLine={false} axisLine={false} /><YAxis tickFormatter={v => `${v / 100000}L`} width={40} /><ChartTooltip content={<ChartTooltipContent />} /><Bar dataKey="revenue" fill="var(--color-revenue)" radius={4} /><Bar dataKey="expenses" fill="var(--color-expenses)" radius={4} /></BarChart></ChartContainer><p className="mt-3 text-xs text-muted-foreground">Revenue: emerald · Expenses: muted green</p></CardContent></Card><Card><CardHeader><CardTitle>Occupancy & collection rate</CardTitle><CardDescription>Current September performance · percent</CardDescription></CardHeader><CardContent><ChartContainer className="h-56 w-full" config={{ occupancy: { label: 'Occupancy', color: 'var(--chart-1)' }, collection: { label: 'Collection rate', color: 'var(--chart-2)' } }}><BarChart accessibilityLayer data={performance}><CartesianGrid vertical={false} /><XAxis dataKey="property" tickLine={false} axisLine={false} /><YAxis domain={[0, 100]} width={30} /><ChartTooltip content={<ChartTooltipContent />} /><Bar dataKey="occupancy" fill="var(--color-occupancy)" radius={4} /><Bar dataKey="collection" fill="var(--color-collection)" radius={4} /></BarChart></ChartContainer><p className="mt-3 text-xs text-muted-foreground">Occupancy: emerald · Collection: muted green</p></CardContent></Card></section>
+}
